@@ -4,8 +4,8 @@ from .drinks import *
 class Operational:
     def __init__(self, keys_admins:dict):
         self.users = Users(keys_admins)
-        self.ingredients = dict()
-        self.drinks = dict()
+        self.ingredients = []
+        self.drinks = []
 
     @staticmethod
     def checar_permissao(nvl_acesso_necess:int):
@@ -56,7 +56,37 @@ class Operational:
 
     @checar_permissao(nvl_acesso_necess=0)
     def update_stock(self, user, password):
-        print("Estou mudando o estoque, boooo...")
+        opcao = input("Informe o que deve ser atualizado (ingrediente/lata): ")
+        while(opcao != "ingrediente" and opcao != "lata"):
+            opcao = input("Selecione uma opcao valida (ingrediente/lata): ")
+        if opcao == "lata":
+            print("Informe a marca, o nome e quanto deverá ser acrescido/descrescido: ")
+            marca = input("Marca: ")
+            nome = input("Nome: ")
+            delta_qtd = int(input("Acrescimo/Decrescimo: "))
+            atualizado = False
+            for drink in self.drinks:
+                if drink.name == nome and drink.marca == marca:
+                    print(f"Bebida {nome} da marca {marca} atualizada, quantidade: {drink.quantity} -> {drink.quantity+delta_qtd}")
+                    drink.quantity += delta_qtd
+                    atualizado = True
+            if not atualizado:
+                if delta_qtd > 0:
+                    self.drinks.append(CannedDrink(delta_qtd, marca, nome, PRECO_LATA))
+        else:
+            print("Informe o ingrediente sendo reposto seguido pela modificacao na quantidade: ")
+            ingrediente_reposto = input("Ingrediente: ")
+            delta_qtd = int(input("Acrescimo/Decrescimo: "))
+            atualizado = False
+            for ingrediente in self.ingredients:
+                if ingrediente.name == ingrediente_reposto:
+                    ingrediente.quantity += delta_qtd
+                    print(f"Ingrediente {ingrediente_reposto} atualizado, quantidade: {ingrediente.quantity} -> {ingrediente.quantity+delta_qtd}")
+                    atualizado = True
+            if not atualizado:
+                if delta_qtd > 0:
+                    self.ingredients.append(Ingredient(ingrediente_reposto, delta_qtd))
+
 
 
 
