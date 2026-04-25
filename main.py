@@ -1,12 +1,13 @@
 from src.machine import Machine
 
 def main():
-    # Teste de cadastro de usuário na máquina --------------------------------------
+    # Teste de cadastro de usuário na máquina e exemplo de uso ======================================
     admins = {
-        1 : ["senha123",1]
+        "renan123" : ["senha123",0]
     }
 
     maquina = Machine(0, "sao paulo", admins)
+    maquina.operational.update_stock("renan123", "senha123")
 
 
 
