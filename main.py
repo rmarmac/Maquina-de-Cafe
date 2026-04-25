@@ -6,7 +6,7 @@ def main():
         1 : ["senha123",1]
     }
 
-    maquina = Machine(0, True, "sao paulo", admins)
+    maquina = Machine(0, "sao paulo", admins)
 
 
 
