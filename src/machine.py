@@ -47,6 +47,7 @@ class Operational:
                     print(f"Aqui esta {min(bebida.quantity, quantidade)} unidade(s) de {nome}/{marca}, Aproveite!")
                     bebida.quantity -= min(bebida.quantity, quantidade)
                     existe = True
+                    break
             if not existe:
                 print("Bebida nao existente.\n")
 
@@ -84,25 +85,27 @@ class Operational:
             atualizado = False
             for drink in self.drinks:
                 if drink.name == nome and drink.marca == marca:
-                    print(f"Bebida {nome} da marca {marca} atualizada, quantidade: {drink.quantity} -> {drink.quantity+delta_qtd}")
+                    print(f"Bebida {nome} da marca {marca} atualizada, quantidade: {drink.quantity} -> {drink.quantity+delta_qtd}\n")
                     drink.quantity += delta_qtd
                     atualizado = True
             if not atualizado:
                 if delta_qtd > 0:
                     self.drinks.append(CannedDrink(delta_qtd, marca, nome, PRECO_LATA))
+                    print("Bebida em lata adicionada com sucesso!\n")
         else:
             print("Informe o ingrediente sendo reposto seguido pela modificacao na quantidade: ")
-            ingrediente_reposto = input("Ingrediente: ")
+            ingrediente_reposto = input("Ingrediente: ").lower()
             delta_qtd = int(input("Acrescimo/Decrescimo: "))
             atualizado = False
             for ingrediente in self.ingredients:
                 if ingrediente.name == ingrediente_reposto:
                     ingrediente.quantity += delta_qtd
-                    print(f"Ingrediente {ingrediente_reposto} atualizado, quantidade: {ingrediente.quantity} -> {ingrediente.quantity+delta_qtd}")
+                    print(f"Ingrediente {ingrediente_reposto} atualizado, quantidade: {ingrediente.quantity} -> {ingrediente.quantity+delta_qtd}\n")
                     atualizado = True
             if not atualizado:
                 if delta_qtd > 0:
                     self.ingredients.append(Ingredient(ingrediente_reposto, delta_qtd))
+                    print("Ingrediente adicionado com sucesso!\n")
 
     @checar_permissao(nvl_acesso_necess=0)
     def registrar_bebida_dosada(self, user, password):
@@ -111,11 +114,20 @@ class Operational:
         existe = False
         for drink in self.drinks:
             if drink.name == nome:
-                drink.ingredients_needed = ingredientes_necessarios
-                print(f"Drink {nome} teve seus ingredientes atualizados")
+                drink.ingredients_needed = []
+                for nome_ingrediente in ingredientes_necessarios:
+                    qtde_necessaria = input(f"Informe a quantidade necessaria de {nome_ingrediente}")
+                    drink.ingredients_needed.append(Ingredient(nome_ingrediente, qtde_necessaria))
+                print(f"Drink {nome} teve seus ingredientes atualizados!\n")
                 existe = True
+                break
         if not existe:
+            drink.ingredients_needed = []
+            for nome_ingrediente in ingredientes_necessarios:
+                qtde_necessaria = input(f"Informe a quantidade necessaria de {nome_ingrediente}")
+                drink.ingredients_needed.append(Ingredient(nome_ingrediente, qtde_necessaria))
             self.drinks.append(DosedDrink(ingredientes_necessarios, nome, PRECO_DOSADA))
+            print("Bebida registrada com sucesso!\n")
 
 
 
