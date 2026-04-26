@@ -1,10 +1,11 @@
 from .user import Users
+from .drinks import *
 
 class Operational:
     def __init__(self, keys_admins:dict):
         self.users = Users(keys_admins)
-        self.ingredients = dict()
-        self.drinks = dict()
+        self.ingredients = []
+        self.drinks = []
 
     @staticmethod
     def checar_permissao(nvl_acesso_necess:int):
@@ -29,8 +30,57 @@ class Operational:
     def pay():
         pass
 
-    def buy_drink():
-        pass
+    def buy_drink(self):
+        tipo_bebida = input("Qual tipo de bebida deseja comprar? (Lata, Dosada)\n").lower()
+
+        if tipo_bebida == "lata":
+            print("Qual das seguintes bebidas deseja comprar?")
+            for bebida in self.drinks:
+                if type(bebida) == CannedDrink:
+                    print(bebida.name)
+            nome = input("Bebida: ")
+            marca = input("Marca: ")
+            quantidade = int(input("Quantidade: "))
+            existe = False
+            for bebida in self.drinks:
+                if bebida.name == nome and bebida.marca == marca and quantidade > 0 and type(bebida) == CannedDrink:
+                    print(f"Aqui esta {min(bebida.quantity, quantidade)} unidade(s) de {nome}/{marca}, Aproveite!")
+                    bebida.quantity -= min(bebida.quantity, quantidade)
+                    existe = True
+                    break
+            if not existe:
+                print("Bebida nao existente.\n")
+        else:
+            print("Qual das seguintes bebidas deseja comprar?")
+            for bebida in self.drinks:
+                if type(bebida) == DosedDrink:
+                    print(bebida.name)
+            nome = input("Bebida: ")
+            dose = int(input("Dose: "))
+            existe = False
+            for bebida in self.drinks:
+                if bebida.name == nome and type(bebida) == DosedDrink:
+                    existe = True
+                    possui_ingredientes_necessarios = True
+                    for ingrediente_necessario in bebida.ingredients_needed:
+                        suficiente = False
+                        for ingrediente_existente in self.ingredients:
+                            if ingrediente_existente.name == ingrediente_necessario.name and ingrediente_existente.quantity >= ingrediente_necessario.quantity:
+                                suficiente = True
+                                break
+                        possui_ingredientes_necessarios = possui_ingredientes_necessarios * suficiente
+
+                    if not possui_ingredientes_necessarios:
+                        print("Sentimos muito, nao ha ingredientes suficientes para sua compra.\n")
+                    else:
+                        print(f"Aproveite sua bebida {nome}, dose de {dose}!")
+                        for ingrediente_necessario in bebida.ingredients_needed:
+                            for ingrediente_existente in self.ingredients:
+                                if ingrediente_existente.name == ingrediente_necessario.name:
+                                    ingrediente_existente.quantity -= ingrediente_necessario.quantity
+                    break
+            if not existe:
+                print("Bebida nao existente.\n")
 
     # Gets ----------------------------------------------------------------------
 
@@ -55,8 +105,60 @@ class Operational:
 
     @checar_permissao(nvl_acesso_necess=0)
     def update_stock(self, user, password):
-        print("Estou mudando o estoque, boooo...")
+        opcao = input("Informe o que deve ser atualizado (ingrediente/lata): ").lower()
+        while(opcao != "ingrediente" and opcao != "lata"):
+            opcao = input("Selecione uma opcao valida (ingrediente/lata): ")
+        if opcao == "lata":
+            print("Informe a marca, o nome e quanto deverá ser acrescido/descrescido: ")
+            nome = input("Nome: ")
+            marca = input("Marca: ")
+            delta_qtd = int(input("Acrescimo/Decrescimo: "))
+            atualizado = False
+            for drink in self.drinks:
+                if drink.name == nome and drink.marca == marca:
+                    print(f"Bebida {nome} da marca {marca} atualizada, quantidade: {drink.quantity} -> {drink.quantity+delta_qtd}\n")
+                    drink.quantity += delta_qtd
+                    atualizado = True
+            if not atualizado:
+                if delta_qtd > 0:
+                    self.drinks.append(CannedDrink(delta_qtd, marca, nome, PRECO_LATA))
+                    print("Bebida em lata adicionada com sucesso!\n")
+        else:
+            print("Informe o ingrediente sendo reposto seguido pela modificacao na quantidade: ")
+            ingrediente_reposto = input("Ingrediente: ").lower()
+            delta_qtd = int(input("Acrescimo/Decrescimo: "))
+            atualizado = False
+            for ingrediente in self.ingredients:
+                if ingrediente.name == ingrediente_reposto:
+                    ingrediente.quantity += delta_qtd
+                    print(f"Ingrediente {ingrediente_reposto} atualizado, quantidade: {ingrediente.quantity} -> {ingrediente.quantity+delta_qtd}\n")
+                    atualizado = True
+            if not atualizado:
+                if delta_qtd > 0:
+                    self.ingredients.append(Ingredient(ingrediente_reposto, delta_qtd))
+                    print("Ingrediente adicionado com sucesso!\n")
 
+    @checar_permissao(nvl_acesso_necess=0)
+    def registrar_bebida_dosada(self, user, password):
+        nome = input("Informe o nome da bebida: ")
+        ingredientes_necessarios = input("Informe os ingredientes necessarios, separados por virgula: ").lower().replace(' ', '').split(',')
+        existe = False
+        for drink in self.drinks:
+            if drink.name == nome:
+                drink.ingredients_needed = []
+                for nome_ingrediente in ingredientes_necessarios:
+                    qtde_necessaria = int(input(f"Informe a quantidade necessaria de {nome_ingrediente} "))
+                    drink.ingredients_needed.append(Ingredient(nome_ingrediente, qtde_necessaria))
+                print(f"Drink {nome} teve seus ingredientes atualizados!\n")
+                existe = True
+                break
+        if not existe:
+            ingredientes = []
+            for nome_ingrediente in ingredientes_necessarios:
+                qtde_necessaria = int(input(f"Informe a quantidade necessaria de {nome_ingrediente} "))
+                ingredientes.append(Ingredient(nome_ingrediente, qtde_necessaria))
+            self.drinks.append(DosedDrink(ingredientes, nome, PRECO_DOSADA))
+            print("Bebida registrada com sucesso!\n")
 
 
 
@@ -77,7 +179,4 @@ class Machine:
     # Operacoes  -------------------------------------------------------------------------------
 
     def initial_screen():
-        pass
-
-    def buy_drink():
         pass
