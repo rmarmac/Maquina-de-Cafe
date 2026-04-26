@@ -50,6 +50,37 @@ class Operational:
                     break
             if not existe:
                 print("Bebida nao existente.\n")
+        else:
+            print("Qual das seguintes bebidas deseja comprar?")
+            for bebida in self.drinks:
+                if type(bebida) == DosedDrink:
+                    print(bebida.name)
+            nome = input("Bebida: ")
+            dose = int(input("Dose: "))
+            existe = False
+            for bebida in self.drinks:
+                if bebida.name == nome and type(bebida) == DosedDrink:
+                    existe = True
+                    possui_ingredientes_necessarios = True
+                    for ingrediente_necessario in bebida.ingredients_needed:
+                        suficiente = False
+                        for ingrediente_existente in self.ingredients:
+                            if ingrediente_existente.name == ingrediente_necessario.name and ingrediente_existente.quantity >= ingrediente_necessario.quantity:
+                                suficiente = True
+                                break
+                        possui_ingredientes_necessarios = possui_ingredientes_necessarios * suficiente
+
+                    if not possui_ingredientes_necessarios:
+                        print("Sentimos muito, nao ha ingredientes suficientes para sua compra.\n")
+                    else:
+                        print(f"Aproveite sua bebida {nome}, dose de {dose}!")
+                        for ingrediente_necessario in bebida.ingredients_needed:
+                            for ingrediente_existente in self.ingredients:
+                                if ingrediente_existente.name == ingrediente_necessario.name:
+                                    ingrediente_existente.quantity -= ingrediente_necessario.quantity
+                    break
+            if not existe:
+                print("Bebida nao existente.\n")
 
     # Gets ----------------------------------------------------------------------
 
@@ -116,17 +147,17 @@ class Operational:
             if drink.name == nome:
                 drink.ingredients_needed = []
                 for nome_ingrediente in ingredientes_necessarios:
-                    qtde_necessaria = input(f"Informe a quantidade necessaria de {nome_ingrediente}")
+                    qtde_necessaria = int(input(f"Informe a quantidade necessaria de {nome_ingrediente} "))
                     drink.ingredients_needed.append(Ingredient(nome_ingrediente, qtde_necessaria))
                 print(f"Drink {nome} teve seus ingredientes atualizados!\n")
                 existe = True
                 break
         if not existe:
-            drink.ingredients_needed = []
+            ingredientes = []
             for nome_ingrediente in ingredientes_necessarios:
-                qtde_necessaria = input(f"Informe a quantidade necessaria de {nome_ingrediente}")
-                drink.ingredients_needed.append(Ingredient(nome_ingrediente, qtde_necessaria))
-            self.drinks.append(DosedDrink(ingredientes_necessarios, nome, PRECO_DOSADA))
+                qtde_necessaria = int(input(f"Informe a quantidade necessaria de {nome_ingrediente} "))
+                ingredientes.append(Ingredient(nome_ingrediente, qtde_necessaria))
+            self.drinks.append(DosedDrink(ingredientes, nome, PRECO_DOSADA))
             print("Bebida registrada com sucesso!\n")
 
 

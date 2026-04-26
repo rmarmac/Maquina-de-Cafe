@@ -6,8 +6,12 @@ def main():
         "renan123" : ["senha123",0]
     }
     maquina = Machine(0, "sao paulo", admins)
-    while(1):
-        maquina.operational.update_stock("renan123", "senha123")
+
+    maquina.operational.update_stock("renan123", "senha123")
+    maquina.operational.update_stock("renan123", "senha123")
+    maquina.operational.registrar_bebida_dosada("renan123", "senha123")
+  
+    maquina.operational.buy_drink()
 
 
 if __name__ == "__main__":
