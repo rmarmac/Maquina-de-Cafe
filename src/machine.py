@@ -237,7 +237,7 @@ class Machine:
 
     def initial_screen(self) -> None:
         while (1):
-            os.system('cls')
+            os.system('cls' if os.name == 'nt' else 'clear')
             print("========================================================================")
             print("|                      Bem vindo a nossa cafeteria                     |")
             print("========================================================================\n")
