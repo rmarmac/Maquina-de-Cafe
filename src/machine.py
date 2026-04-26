@@ -30,8 +30,25 @@ class Operational:
     def pay():
         pass
 
-    def buy_drink():
-        pass
+    def buy_drink(self):
+        tipo_bebida = input("Qual tipo de bebida deseja comprar? (Lata, Dosada)\n").lower()
+
+        if tipo_bebida == "lata":
+            print("Qual das seguintes bebidas deseja comprar?")
+            for bebida in self.drinks:
+                if type(bebida) == CannedDrink:
+                    print(bebida.name)
+            nome = input("Bebida: ")
+            marca = input("Marca: ")
+            quantidade = int(input("Quantidade: "))
+            existe = False
+            for bebida in self.drinks:
+                if bebida.name == nome and bebida.marca == marca and quantidade > 0 and type(bebida) == CannedDrink:
+                    print(f"Aqui esta {min(bebida.quantity, quantidade)} unidade(s) de {nome}/{marca}, Aproveite!")
+                    bebida.quantity -= min(bebida.quantity, quantidade)
+                    existe = True
+            if not existe:
+                print("Bebida nao existente.\n")
 
     # Gets ----------------------------------------------------------------------
 
@@ -56,13 +73,13 @@ class Operational:
 
     @checar_permissao(nvl_acesso_necess=0)
     def update_stock(self, user, password):
-        opcao = input("Informe o que deve ser atualizado (ingrediente/lata): ")
+        opcao = input("Informe o que deve ser atualizado (ingrediente/lata): ").lower()
         while(opcao != "ingrediente" and opcao != "lata"):
             opcao = input("Selecione uma opcao valida (ingrediente/lata): ")
         if opcao == "lata":
             print("Informe a marca, o nome e quanto deverá ser acrescido/descrescido: ")
-            marca = input("Marca: ")
             nome = input("Nome: ")
+            marca = input("Marca: ")
             delta_qtd = int(input("Acrescimo/Decrescimo: "))
             atualizado = False
             for drink in self.drinks:
@@ -108,7 +125,4 @@ class Machine:
     # Operacoes  -------------------------------------------------------------------------------
 
     def initial_screen():
-        pass
-
-    def buy_drink():
         pass
