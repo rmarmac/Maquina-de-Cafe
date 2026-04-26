@@ -8,11 +8,7 @@ def main():
     }
     maquina = Machine(0, "sao paulo", admins)
 
-    maquina.operational.update_stock("renan123", "senha123")
-    maquina.operational.registrar_bebida_dosada("renan123", "senha123")
-  
-    maquina.operational.buy_drink()
-    print(maquina.operational.get_dosed_sales("luiz","senha"))
+    maquina.initial_screen()
 
 
 if __name__ == "__main__":
