@@ -244,6 +244,8 @@ class Machine:
             tipo_bebida : str = input("Qual tipo de bebida deseja comprar hoje? (Lata, Dosada)\n").lower()
             if tipo_bebida == "dosada" or tipo_bebida == "lata":
                 self.operational.buy_drink(tipo_bebida)
+            elif tipo_bebida.upper() == "SAIR":
+                exit(0)
             elif tipo_bebida == "codigo_secreto":
                 print("\nOla usuario, selecione uma das opcoes abaixo:")
                 print("1 - Atualizar Estoque (Permissao exigida: repositor)")
