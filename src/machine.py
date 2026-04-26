@@ -104,7 +104,18 @@ class Operational:
                 if delta_qtd > 0:
                     self.ingredients.append(Ingredient(ingrediente_reposto, delta_qtd))
 
-
+    @checar_permissao(nvl_acesso_necess=0)
+    def registrar_bebida_dosada(self, user, password):
+        nome = input("Informe o nome da bebida: ")
+        ingredientes_necessarios = input("Informe os ingredientes necessarios, separados por virgula: ").lower().replace(' ', '').split(',')
+        existe = False
+        for drink in self.drinks:
+            if drink.name == nome:
+                drink.ingredients_needed = ingredientes_necessarios
+                print(f"Drink {nome} teve seus ingredientes atualizados")
+                existe = True
+        if not existe:
+            self.drinks.append(DosedDrink(ingredientes_necessarios, nome, PRECO_DOSADA))
 
 
 
