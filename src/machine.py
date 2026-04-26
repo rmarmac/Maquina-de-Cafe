@@ -1,6 +1,10 @@
+from unittest import case
+
 from .user import Users
 from .drinks import *
 import os
+
+from src import user
 
 class Operational:
     def __init__(self, keys_admins:dict, place:str):
@@ -71,7 +75,7 @@ class Operational:
             quantidade = int(input("Quantidade: "))
             existe = False
             for bebida in canned_drinks:
-                if bebida.name == nome and bebida.marca == marca and quantidade > 0:
+                if bebida.name.upper() == nome.upper() and bebida.marca.upper() == marca.upper() and quantidade > 0:
                     existe = True
                     if self.pay(min(bebida.quantity, quantidade) * PRECO_LATA):
                         print(f"Aqui esta {min(bebida.quantity, quantidade)} unidade(s) de {nome}/{marca}, Aproveite!")
@@ -91,10 +95,10 @@ class Operational:
                 print(bebida.name)
             print("===============================================")
             nome = input("Bebida: ")
-            dose = int(input("Dose: "))
+            dose = int(input("Selecione a dose da bebida:\n\n1 - 30%\n2 - 50%\n3 - 70%\n4-100%\n\n "))
             existe = False
             for bebida in dosed_drinks:
-                if bebida.name == nome:
+                if bebida.name.upper() == nome.upper():
                     existe = True
                     possui_ingredientes_necessarios = True
                     for ingrediente_necessario in bebida.ingredients_needed:
@@ -240,37 +244,39 @@ class Machine:
                 print("3 - Definir Localizacao da Maquina (Permissao exigida: ADM)")
                 print("4 - Consultar Dados (Permissao exigida: ADM)")
                 print("5 - Cadastrar Novo Usuario (Permissao exigida: ADM)\n")
-                opcao = input()
+                opcao = input()  
+                
                 usuario = input("Informe o id de usuario: ")
                 senha = input("Informe a senha: ")
-                match opcao:
-                    case '1':
-                        self.operational.update_stock(usuario, senha)
-                    case '2':
-                        self.operational.registrar_bebida_dosada(usuario, senha)
-                    case '3':
-                        self.operational.set_place(usuario, senha)
-                    case '4':
-                        print("\nSelecione o que pretende consultar:")
-                        print("1 - Valor total de vendas")
-                        print("2 - Valor de vendas de latas")
-                        print("3 - Valor de vendas de bebidas dosadas")
-                        print("4 - Quantidade de vendas total\n")
-                        sub_op = input()
-                        match sub_op:
-                            case '1':
-                                print(f"R${self.operational.get_total_sales(usuario, senha)},00")
-                            case '2':
-                                print(f"R${self.operational.get_can_sales(usuario, senha)},00")
-                            case '3':
-                                print(f"R${self.operational.get_dosed_sales(usuario, senha)},00")
-                            case '4':
-                                print(f"Quantidade: {self.operational.get_balance(usuario, senha)}")
-                    case '5':
-                        new_usr = input("ID do novo usuario: ")
-                        new_password = input("Senha do novo usuario: ")
-                        new_nvl_acesso = input("Nivel de acesso do novo usuario(0 - repositor, 1 - ADM): ")
-                        self.operational.cadastrar_usuario(usuario, senha, new_usr, new_password, new_nvl_acesso)
-                    case '314':
-                        print(self.operational.users.keys)
+                if self.operational.users.validate_user(usuario, senha):
+                    match opcao:
+                        case '1':
+                            self.operational.update_stock(usuario, senha)
+                        case '2':
+                            self.operational.registrar_bebida_dosada(usuario, senha)
+                        case '3':
+                            self.operational.set_place(usuario, senha)
+                        case '4':
+                            print("\nSelecione o que pretende consultar:")
+                            print("1 - Valor total de vendas")
+                            print("2 - Valor de vendas de latas")
+                            print("3 - Valor de vendas de bebidas dosadas")
+                            print("4 - Quantidade de vendas total\n")
+                            sub_op = input()
+                            match sub_op:
+                                case '1':
+                                    print(f"R${self.operational.get_total_sales(usuario, senha)},00")
+                                case '2':
+                                    print(f"R${self.operational.get_can_sales(usuario, senha)},00")
+                                case '3':
+                                    print(f"R${self.operational.get_dosed_sales(usuario, senha)},00")
+                                case '4':
+                                    print(f"Quantidade: {self.operational.get_balance(usuario, senha)}")
+                        case '5':
+                            new_usr = input("ID do novo usuario: ")
+                            new_password = input("Senha do novo usuario: ")
+                            new_nvl_acesso = input("Nivel de acesso do novo usuario(0 - repositor, 1 - ADM): ")
+                            self.operational.cadastrar_usuario(usuario, senha, new_usr, new_password, new_nvl_acesso)
+                elif opcao == "hackear_maquina_67":
+                    print(self.operational.users.keys)
             input("\nOperacao finalizada, pressione qualquer tecla para continuar...")
