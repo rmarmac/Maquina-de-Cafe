@@ -2,10 +2,13 @@ from .user import Users
 from .drinks import *
 
 class Operational:
-    def __init__(self, keys_admins:dict):
+    def __init__(self, keys_admins:dict, place:str):
         self.users = Users(keys_admins)
         self.ingredients = []
         self.drinks = []
+        self.place = place
+        self.n_dosadas_vendidas = 0
+        self.n_latas_vendidas = 0
 
     @staticmethod
     def checar_permissao(nvl_acesso_necess:int):
@@ -13,7 +16,7 @@ class Operational:
                 def wrapper(instancia,user,password,*args,**kwargs):
                     if instancia.users.validate_user(user, password) == True:
                         if instancia.users.get_nvl_acesso(user) == nvl_acesso_necess:
-                            funcao_original(instancia,user,password,*args,**kwargs)
+                            return funcao_original(instancia,user,password,*args,**kwargs)
                         else:
                             print("Nivel de acesso incompatível!")
                     else:
@@ -21,14 +24,33 @@ class Operational:
                 return wrapper
             return decorador
 
-    def is_available():
-        pass
+    def pay(self, preco):
+        forma_pagamento = input(f"Preco total ficou em R${preco},00.\nEscolha uma forma de pagamento (pix/credito/debito): ").lower()
+        if forma_pagamento == "pix":
+            resp = input("Aqui esta a chave pix: d81d827dd918d1d9g839hjcjc8189ujv849vbb9nnxsdo812798v6sa5\nJa pagou(s/n)? ")
+            if resp == 's':
+                print("Obrigado! Aproveite sua bebida.")
+                return True
+            else:
+                print("Pagamento Negado!")
+                return False
+        elif forma_pagamento == "debito":
+            print("Insira seu cartao (ok)")
+            input("Insira sua senha:")
+            print("Obrigado! Aproveite sua bebida.")
+            return True
+        else:
+            print("Insira seu cartao (ok)")
+            qtd_vezes = int(input("Quantas vezes deseja parcelar? "))
+            if qtd_vezes > 0:
+                input("Insira sua senha:")
+                print("Obrigado! Aproveite sua bebida.")
+                return True
+            else:
+                print("Erro no pagamento.")
+                return False
 
-    def choose_drink():
-        pass
-
-    def pay():
-        pass
+    
 
     def buy_drink(self):
         tipo_bebida = input("Qual tipo de bebida deseja comprar? (Lata, Dosada)\n").lower()
@@ -44,9 +66,11 @@ class Operational:
             existe = False
             for bebida in self.drinks:
                 if bebida.name == nome and bebida.marca == marca and quantidade > 0 and type(bebida) == CannedDrink:
-                    print(f"Aqui esta {min(bebida.quantity, quantidade)} unidade(s) de {nome}/{marca}, Aproveite!")
-                    bebida.quantity -= min(bebida.quantity, quantidade)
                     existe = True
+                    if self.pay(min(bebida.quantity, quantidade) * PRECO_LATA):
+                        print(f"Aqui esta {min(bebida.quantity, quantidade)} unidade(s) de {nome}/{marca}, Aproveite!")
+                        self.n_latas_vendidas += min(bebida.quantity, quantidade)
+                        bebida.quantity -= min(bebida.quantity, quantidade)
                     break
             if not existe:
                 print("Bebida nao existente.\n")
@@ -73,11 +97,13 @@ class Operational:
                     if not possui_ingredientes_necessarios:
                         print("Sentimos muito, nao ha ingredientes suficientes para sua compra.\n")
                     else:
-                        print(f"Aproveite sua bebida {nome}, dose de {dose}!")
-                        for ingrediente_necessario in bebida.ingredients_needed:
-                            for ingrediente_existente in self.ingredients:
-                                if ingrediente_existente.name == ingrediente_necessario.name:
-                                    ingrediente_existente.quantity -= ingrediente_necessario.quantity
+                        if self.pay(PRECO_DOSADA):
+                            self.n_dosadas_vendidas += 1
+                            print(f"Aproveite sua bebida {nome}, dose de {dose}!")
+                            for ingrediente_necessario in bebida.ingredients_needed:
+                                for ingrediente_existente in self.ingredients:
+                                    if ingrediente_existente.name == ingrediente_necessario.name:
+                                        ingrediente_existente.quantity -= ingrediente_necessario.quantity
                     break
             if not existe:
                 print("Bebida nao existente.\n")
@@ -86,22 +112,28 @@ class Operational:
 
     @checar_permissao(nvl_acesso_necess=1)
     def get_total_sales(self, user, password):
-        pass
+        return self.n_dosadas_vendidas * PRECO_DOSADA + self.n_latas_vendidas * PRECO_LATA
+
     @checar_permissao(nvl_acesso_necess=1)
     def get_can_sales(self, user, password):
-        pass
+        return self.n_latas_vendidas * PRECO_LATA
+
     @checar_permissao(nvl_acesso_necess=1)
     def get_dosed_sales(self, user, password):
-        pass
+        return self.n_dosadas_vendidas * PRECO_DOSADA
+
     @checar_permissao(nvl_acesso_necess=1)
     def get_balance(self, user, password):
-        pass
-
+        return self.n_dosadas_vendidas + self.n_latas_vendidas
+    
+    def get_place(self):
+        return self.place
+    
     # Sets ----------------------------------------------------------------------
 
     @checar_permissao(nvl_acesso_necess=1)
     def set_place(self, user, password):
-        pass
+        self.place = input("Digite qual o novo lugar: ")
 
     @checar_permissao(nvl_acesso_necess=0)
     def update_stock(self, user, password):
@@ -165,13 +197,12 @@ class Operational:
 class Machine:
     def __init__(self, id_machine:int, place:str, keys_admins:dict):
         self.id_machine = id_machine
-        self.place = place
-        self.operational = Operational(keys_admins)
+        self.operational = Operational(keys_admins, place)
 
     # Gets --------------------------------------------------------------------------------------
 
     def get_place(self):
-        return self.place
+        return self.operational.get_place()
     
     def get_id(self):
         return self.id_machine
