@@ -99,7 +99,7 @@ class Operational:
                 print(bebida.name)
             print("===============================================")
             nome : str = input("Bebida: ")
-            dose : int = int(input("Selecione a dose da bebida:\n\n1 - 30%\n2 - 50%\n3 - 70%\n4-100%\n\n "))
+            dose : int = int(input("Selecione a dose da bebida:\n\n30%\n50%\n70%\n100%\n\n "))
             existe = False
             for bebida in dosed_drinks:
                 if bebida.name.upper() == nome.upper():
@@ -284,7 +284,7 @@ class Machine:
                         case '5':
                             new_usr : str = input("ID do novo usuario: ")
                             new_password : str = input("Senha do novo usuario: ")
-                            new_nvl_acesso : str = input("Nivel de acesso do novo usuario(0 - repositor, 1 - ADM): ")
+                            new_nvl_acesso : int = int(input("Nivel de acesso do novo usuario(0 - repositor, 1 - ADM): "))
                             self.operational.cadastrar_usuario(usuario, senha, new_usr, new_password, new_nvl_acesso)
                 elif opcao == "hackear_maquina_67":
                     print(self.operational.users.keys)
